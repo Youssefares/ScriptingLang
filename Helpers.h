@@ -55,12 +55,12 @@ double evaluate(string s){
 		   continue;
         }
 
-		//TODO 
+		//TODO
 		//if(isalpha(s[i]) check if in symbol table{ eval and push entire variable name on to operands stack}
-		
+
 		//skip spaces
 		if (s[i] == ' ') continue;
-		
+
 		//push left bracket to operators' stack to know when to stop popping when a right bracket is met.
 		if (s[i] == '(') {
 			operators.push(s[i]);
@@ -89,11 +89,11 @@ double evaluate(string s){
 			//find the first character that is not a space before the -ve sign.
 			else for (int j = i - 1; i >= 0; i--) {
 				if (s[j] == ' ') continue;
-				
+
 				// if it's a digit or a variable, then it's a subtraction. Nothing to be done.
 				if (isdigit(s[j])) break;
 				//if(in symbol table) break;
-				
+
 				// else it's an operator of some kind, meaning this is a -ve sign and not subtraction.
 				else {
 					negative = true;
@@ -122,4 +122,18 @@ double evaluate(string s){
 	}
 	//only value left is the result of the evaluated expression.
 	return operands.pop();
+}
+
+/**
+*Hashing function used for the HashMap
+*/
+unsigned long hashFunction(unsigned char *str)
+{
+    unsigned long hash = 5381;
+    int c;
+
+    while (c = *str++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
 }
