@@ -1,6 +1,7 @@
 #include <string>
 #include "Stack.h"
 #include <cctype>
+#include <iostream>
 
 /*
  * evaluates "operand (operator) operand"
@@ -56,7 +57,7 @@ double evaluate(string s){
         }
 
 		//TODO
-		//if(isalpha(s[i]) check if in symbol table{ eval and push entire variable name on to operands stack}
+		//if(isalpha(s[i]) check if in symbol table{ getvalue and push on to operands stack}
 
 		//skip spaces
 		if (s[i] == ' ') continue;
@@ -136,4 +137,16 @@ unsigned long hashFunction(unsigned char *str)
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
     return hash;
+}
+
+/*
+ * Parsing function: Executes statement passed on as string argument.
+ */
+
+void execute(string code){
+	if(code.find('=') == -1){
+		double result = evaluate(code);
+		cout<<result;
+	}
+	cout<<"\n\n";
 }
