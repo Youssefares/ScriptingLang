@@ -140,6 +140,26 @@ unsigned long hashFunction(unsigned char *str)
     return hash;
 }
 
+/**
+ * Acts like a preprocessor. Removes all the occurences of any variable and replaces
+ * it with its value.
+ */
+void removeVarOccurences(string &code, std::map<string,int> *variables){
+    for(int i = 0; i < code.length(); i++){
+        char  current =  code[i];
+        if(!isdigit(current)){
+            int j = i +1;
+            while(!isdigit(code[j]) && j < code.length())
+                j++;
+//            j++;
+            
+            int value = (*variables)[code.substr(i,j - i)];
+            code = code.substr(0,i - i) + std::to_string(value) + code.substr(j);
+        }
+    }
+}
+
+
 /*
  * Parsing function: Executes statement passed on as string argument.
  *
@@ -154,11 +174,16 @@ unsigned long hashFunction(unsigned char *str)
 void execute(string code, std::map<string,int> *variables){
 	int equalIndex = code.find('=');
 	if( equalIndex == -1){
+        removeVarOccurences(code,variables);
 		double result = evaluate(code);
 		cout<<result;
 	} else {
 		string key = code.substr(0,equalIndex);
-		variables->insert(variables->begin(), std::pair<string,int> (key,evaluate(code.substr(equalIndex + 1))));
+		(*variables)[key] = evaluate(code.substr(equalIndex + 1));
 	}
 	cout<<"\n\n";
 }
+
+
+
+

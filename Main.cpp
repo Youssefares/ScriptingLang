@@ -1,11 +1,11 @@
 #include <cstdio>
 #include "Helpers.h"
-#include "hashset.h"
+//#include "hashset.h"
 #include <map>
 
 int main(int argc, char* argv[]){
 	//if run without file args, run interpreter
-	std::map<string, int> variables();
+	std::map<string, int> variables;
 	if(argc  == 1){
 		string codeline;
 	LOOP:
