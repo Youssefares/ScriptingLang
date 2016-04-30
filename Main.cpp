@@ -1,14 +1,16 @@
 #include <cstdio>
 #include "Helpers.h"
 #include "hashset.h"
+#include <map>
 
 int main(int argc, char* argv[]){
 	//if run without file args, run interpreter
+	std::map<string, int> variables();
 	if(argc  == 1){
 		string codeline;
 	LOOP:
 		for(cout<<">>",getline(cin,codeline); codeline != "q"; getline(cin,codeline)){ 
-		    execute(codeline);
+		    execute(codeline, variables);
 		    cout<<">>";
 		}
 		
@@ -24,3 +26,7 @@ int main(int argc, char* argv[]){
 	}
 	//else read from file.
 }
+
+
+//Instance variables
+

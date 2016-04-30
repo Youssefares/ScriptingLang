@@ -2,6 +2,7 @@
 #include "Stack.h"
 #include <cctype>
 #include <iostream>
+#include <map>
 
 /*
  * evaluates "operand (operator) operand"
@@ -141,12 +142,23 @@ unsigned long hashFunction(unsigned char *str)
 
 /*
  * Parsing function: Executes statement passed on as string argument.
+ *
+ * If the expression only contains operators/operands it evaluates it.
+ * 
+ *
+ * Otherwise it evaluates the expression and assign it to the variable
+ *
+ * @param code the expression with all the white spaces removed
  */
 
-void execute(string code){
-	if(code.find('=') == -1){
+void execute(string code, std::map &variables){
+	int equalIndex = code.find('=');
+	if( equalIndex == -1){
 		double result = evaluate(code);
 		cout<<result;
+	} else {
+		string key = code.substr(0,equalIndex);
+		variables.insert(key, evaluate(code.substr(equalIndex + 1)));
 	}
 	cout<<"\n\n";
 }

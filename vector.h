@@ -16,7 +16,7 @@
 #ifndef _vector_
 #define _vector_
 
-#include "bool.h"
+#include "stdbool.h"
 
 /**
  * Type: VectorCompareFunction
