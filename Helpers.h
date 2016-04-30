@@ -151,14 +151,14 @@ unsigned long hashFunction(unsigned char *str)
  * @param code the expression with all the white spaces removed
  */
 
-void execute(string code, std::map &variables){
+void execute(string code, std::map<string,int> *variables){
 	int equalIndex = code.find('=');
 	if( equalIndex == -1){
 		double result = evaluate(code);
 		cout<<result;
 	} else {
 		string key = code.substr(0,equalIndex);
-		variables.insert(key, evaluate(code.substr(equalIndex + 1)));
+		variables->insert(variables->begin(), std::pair<string,int> (key,evaluate(code.substr(equalIndex + 1))));
 	}
 	cout<<"\n\n";
 }

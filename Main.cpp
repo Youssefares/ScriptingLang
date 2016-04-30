@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 		string codeline;
 	LOOP:
 		for(cout<<">>",getline(cin,codeline); codeline != "q"; getline(cin,codeline)){ 
-		    execute(codeline, variables);
+		    execute(codeline, &variables);
 		    cout<<">>";
 		}
 		
