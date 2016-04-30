@@ -140,6 +140,10 @@ unsigned long hashFunction(unsigned char *str)
     return hash;
 }
 
+bool isOperandOrDigit(char x){
+    return isdigit(x) || x == '+' ||  x == '-' || x == '/' || x == '*';
+}
+
 /**
  * Acts like a preprocessor. Removes all the occurences of any variable and replaces
  * it with its value.
@@ -147,14 +151,14 @@ unsigned long hashFunction(unsigned char *str)
 void removeVarOccurences(string &code, std::map<string,int> *variables){
     for(int i = 0; i < code.length(); i++){
         char  current =  code[i];
-        if(!isdigit(current)){
+        if(!isOperandOrDigit(current)){
             int j = i +1;
-            while(!isdigit(code[j]) && j < code.length())
+            while(!isOperandOrDigit(code[j]) && j < code.length())
                 j++;
 //            j++;
             
             int value = (*variables)[code.substr(i,j - i)];
-            code = code.substr(0,i - i) + std::to_string(value) + code.substr(j);
+            code = code.substr(0,i) + std::to_string(value) + code.substr(j);
         }
     }
 }
