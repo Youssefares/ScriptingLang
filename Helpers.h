@@ -33,6 +33,7 @@ int prior(char op1, char op2) {
  * utilizes Stack.h's Template Class Stack.
  * returns double value of expression.
  */
+bool errorFlag = false;
 double evaluate(string s){
 	Stack<double> operands;
 	Stack<char> operators;
@@ -72,13 +73,29 @@ double evaluate(string s){
 		//keep evaluating pairs of operands and their operation, and pushing the result to the stack till left bracket is met.
 		if (s[i] == ')') {
 			while (operators.peak() != '(') {
+				if(operands.isEmpty()){
+					errorFlag = true;
+					return 0;
+				}
 				double v2 = operands.pop();
+				if(operands.isEmpty()){
+					errorFlag = true;
+					return 0;
+				}
 				double v1 = operands.pop();
 				char o = operators.pop();
+				if(operators.isEmpty()){
+					errorFlag = true;
+					return 0;
+				}
 				operands.push(eval(o, v1, v2));
 			}
 			// pop the left bracket.
 			operators.pop();
+			if(operators.isEmpty()){
+					errorFlag = true;
+					return 0;
+			}
 			continue;
 		}
 
@@ -107,9 +124,21 @@ double evaluate(string s){
 
 		//if it isn't an operand or a right or left bracket. It's an operator. Loop condition makes sure precedence isn't overlooked.
 		while (!operators.isEmpty() && prior(operators.peak(),s[i]) && operators.peak() != '(') {
+			if(operands.isEmpty()){
+					errorFlag = true;
+					return 0;
+			}
 			double v2 = operands.pop();
+			if(operands.isEmpty()){
+					errorFlag = true;
+					return 0;
+			}
 			double v1 = operands.pop();
 			char o = operators.pop();
+			if(operators.isEmpty()){
+					errorFlag = true;
+					return 0;
+			}
 			operands.push(eval(o, v1, v2));
 		}
 		operators.push(s[i]);
@@ -117,13 +146,33 @@ double evaluate(string s){
 
 	//after all is said is done. Make sure nothing is left on the operators' stack.
 	while (!operators.isEmpty()) {
+		if(operands.isEmpty()){
+					errorFlag = true;
+					return 0;
+		}
 		double v2 = operands.pop();
+		if(operands.isEmpty()){
+					errorFlag = true;
+					return 0;
+		}
 		double v1 = operands.pop();
 		char o = operators.pop();
+		if(operators.isEmpty()){
+					errorFlag = true;
+					return 0;
+		}
 		operands.push(eval(o, v1, v2));
 	}
 	//only value left is the result of the evaluated expression.
-	return operands.pop();
+	if(operands.isEmpty()){
+			errorFlag = true;
+			return 0;
+	}
+	double returnV =  operands.pop();
+	if(operands.isEmpty() == false){
+		errorFlag = true;
+		return 0;
+	}
 }
 
 /**
@@ -178,9 +227,10 @@ void removeVarOccurences(string &code, std::map<string,int> *variables){
 void execute(string code, std::map<string,int> *variables){
 	int equalIndex = code.find('=');
 	if( equalIndex == -1){
-        removeVarOccurences(code,variables);
+        //removeVarOccurences(code,variables);
 		double result = evaluate(code);
-		cout<<result;
+		if(errorFlag) cout<<"Invalid Expression";
+		else cout<<result;
 	} else {
 		string key = code.substr(0,equalIndex);
 		(*variables)[key] = evaluate(code.substr(equalIndex + 1));
