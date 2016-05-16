@@ -34,6 +34,8 @@ int prior(char op1, char op2) {
  * returns double value of expression.
  */
 bool errorFlag = false;
+
+//MSA ^_^
 double evaluate(string s){
 	errorFlag = false;
 	Stack<double> operands;
@@ -196,7 +198,7 @@ unsigned long hashFunction(unsigned char *str)
 }
 
 bool isOperandOrDigit(char x){
-    return isdigit(x) || x == '+' ||  x == '-' || x == '/' || x == '*';
+    return isdigit(x) || x == '+' ||  x == '-' || x == '/' || x == '*' || x == ')' || x == '(';
 }
 
 /**
@@ -210,11 +212,20 @@ void removeVarOccurences(string &code, std::map<string,int> *variables){
             int j = i +1;
             while(!isOperandOrDigit(code[j]) && j < code.length())
                 j++;
-//            j++;
             
             int value = (*variables)[code.substr(i,j - i)];
             code = code.substr(0,i) + std::to_string(value) + code.substr(j);
         }
+    }
+}
+
+void removeSpaces(string * str){
+    int i = 0;
+    while(i < str->length()){
+        if( (*str)[i] == ' ')
+            str->erase(i, 1);
+        else
+            i++;
     }
 }
 
@@ -231,9 +242,10 @@ void removeVarOccurences(string &code, std::map<string,int> *variables){
  */
 
 void execute(string code, std::map<string,int> *variables){
+    removeSpaces(&code);
 	int equalIndex = code.find('=');
 	if( equalIndex == -1){
-        //removeVarOccurences(code,variables);
+        removeVarOccurences(code,variables);
 		double result = evaluate(code);
 		if(errorFlag) cout<<"Invalid Expression";
 		else cout<<result;
@@ -243,6 +255,8 @@ void execute(string code, std::map<string,int> *variables){
 	}
 	cout<<"\n\n";
 }
+
+
 
 
 
