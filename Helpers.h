@@ -35,6 +35,7 @@ int prior(char op1, char op2) {
  */
 bool errorFlag = false;
 double evaluate(string s){
+	errorFlag = false;
 	Stack<double> operands;
 	Stack<char> operators;
 
@@ -72,6 +73,10 @@ double evaluate(string s){
 
 		//keep evaluating pairs of operands and their operation, and pushing the result to the stack till left bracket is met.
 		if (s[i] == ')') {
+			if(operators.isEmpty()){
+					errorFlag = true;
+					return 0;
+			}
 			while (operators.peak() != '(') {
 				if(operands.isEmpty()){
 					errorFlag = true;
@@ -83,19 +88,19 @@ double evaluate(string s){
 					return 0;
 				}
 				double v1 = operands.pop();
-				char o = operators.pop();
 				if(operators.isEmpty()){
 					errorFlag = true;
 					return 0;
 				}
+				char o = operators.pop();
 				operands.push(eval(o, v1, v2));
 			}
 			// pop the left bracket.
-			operators.pop();
 			if(operators.isEmpty()){
 					errorFlag = true;
 					return 0;
 			}
+			operators.pop();
 			continue;
 		}
 
@@ -106,7 +111,7 @@ double evaluate(string s){
 				negative = true;
 			}
 			//find the first character that is not a space before the -ve sign.
-			else for (int j = i - 1; i >= 0; i--) {
+			else for (int j = i - 1; j >= 0; j--) {
 				if (s[j] == ' ') continue;
 
 				// if it's a digit or a variable, then it's a subtraction. Nothing to be done.
@@ -134,11 +139,11 @@ double evaluate(string s){
 					return 0;
 			}
 			double v1 = operands.pop();
-			char o = operators.pop();
 			if(operators.isEmpty()){
 					errorFlag = true;
 					return 0;
 			}
+			char o = operators.pop();
 			operands.push(eval(o, v1, v2));
 		}
 		operators.push(s[i]);
@@ -156,11 +161,11 @@ double evaluate(string s){
 					return 0;
 		}
 		double v1 = operands.pop();
-		char o = operators.pop();
 		if(operators.isEmpty()){
 					errorFlag = true;
 					return 0;
 		}
+		char o = operators.pop();
 		operands.push(eval(o, v1, v2));
 	}
 	//only value left is the result of the evaluated expression.
@@ -173,6 +178,7 @@ double evaluate(string s){
 		errorFlag = true;
 		return 0;
 	}
+	return returnV;
 }
 
 /**
