@@ -4,6 +4,9 @@
 #include <iostream>
 #include <map>
 
+
+
+
 /*
  * evaluates "operand (operator) operand"
  */
@@ -34,6 +37,7 @@ int prior(char op1, char op2) {
  * returns double value of expression.
  */
 bool errorFlag = false;
+
 
 //MSA ^_^
 double evaluate(string s){
@@ -182,6 +186,17 @@ double evaluate(string s){
 	}
 	return returnV;
 }
+/**
+ *
+ * Used to encapsulate manipulating error flags to be easier to debug.
+ */
+void raiseError(){
+    errorFlag = true;
+}
+
+void clearErrors(){
+    errorFlag = false;
+}
 
 /**
 *Hashing function used for the HashMap
@@ -205,16 +220,20 @@ bool isOperandOrDigit(char x){
  * Acts like a preprocessor. Removes all the occurences of any variable and replaces
  * it with its value.
  */
-void removeVarOccurences(string &code, std::map<string,int> *variables){
+void removeVarOccurences(string &code, std::map<string,float> *variables){
     for(int i = 0; i < code.length(); i++){
         char  current =  code[i];
         if(!isOperandOrDigit(current)){
             int j = i +1;
             while(!isOperandOrDigit(code[j]) && j < code.length())
                 j++;
-            
-            int value = (*variables)[code.substr(i,j - i)];
+            string  key = code.substr(i,j - i);
+            if(variables->count(key)){
+            float value = (*variables)[key];
             code = code.substr(0,i) + std::to_string(value) + code.substr(j);
+            } else {
+                raiseError();
+            }
         }
     }
 }
@@ -230,6 +249,9 @@ void removeSpaces(string * str){
 }
 
 
+
+
+
 /*
  * Parsing function: Executes statement passed on as string argument.
  *
@@ -241,7 +263,7 @@ void removeSpaces(string * str){
  * @param code the expression with all the white spaces removed
  */
 
-void execute(string code, std::map<string,int> *variables){
+void execute(string code, std::map<string,float> *variables){
     removeSpaces(&code);
 	int equalIndex = code.find('=');
 	if( equalIndex == -1){

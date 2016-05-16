@@ -5,7 +5,7 @@
 
 int main(int argc, char* argv[]){
 	//if run without file args, run interpreter
-	std::map<string, int> variables;
+	std::map<string, float> variables;
 	if(argc  == 1){
 		string codeline;
 	LOOP:
