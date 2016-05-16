@@ -262,6 +262,7 @@ bool isOperandOrDigit(char x){
  * it with its value.
  */
 void removeVarOccurences(string &code, std::map<string,float> *variables){
+    int numVariablesOnLeft = 0;
     int equalIndex = code.find('=');
     for(int i = 0; i < code.length(); i++){
         char  current =  code[i];
@@ -271,11 +272,15 @@ void removeVarOccurences(string &code, std::map<string,float> *variables){
                 j++;
             
             string  key = code.substr(i,j - i);
-            if(variables->count(key)){
+            if(variables->count(key) && (equalIndex == -1 || j > equalIndex)){
             float value = (*variables)[key];
             code = code.substr(0,i) + std::to_string(value) + code.substr(j);
             } else if(j > equalIndex) {
                 raiseError(INVALID_SYMBOL);
+            } else {
+                numVariablesOnLeft++;
+                if(numVariablesOnLeft > 1)
+                    raiseError(LEFT_TOO_MANY_VARS);
             }
         }
     }
@@ -318,8 +323,11 @@ void execute(string code, std::map<string,float> *variables){
         }
 	} else {
         removeVarOccurences(code , variables);
+        if(!interpretErrors()){
+            
 		string key = code.substr(0,equalIndex);
 		(*variables)[key] = evaluate(code.substr(equalIndex + 1));
+        }
 	}
 	cout<<"\n\n";
 }
