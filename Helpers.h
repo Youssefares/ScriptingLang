@@ -31,17 +31,66 @@ int prior(char op1, char op2) {
 	return precedence(op1) >= precedence(op2);
 }
 
+//bool errorFlag = false;
+
+typedef enum error {
+    INVALID_EXPRESSION,
+    INVALID_SYMBOL,
+    MISSING_EQUALS,
+    LEFT_TOO_MANY_VARS,
+    NONE
+} error;
+
+
+error errorFlag = NONE;
+
+/**
+ *
+ * Used to encapsulate manipulating error flags to be easier to debug.
+ */
+void raiseError(error error){
+    errorFlag = error;
+}
+
+void clearErrors(){
+    errorFlag = NONE;
+}
+
+/**
+ * Prints an error message appropriate to the error had there been any.
+ * @return whether an error has been handled or not.
+ */
+bool interpretErrors(){
+    switch (errorFlag){
+            case INVALID_EXPRESSION:
+             cout<<"Invalid Expression";
+            break;
+        case INVALID_SYMBOL:
+            cout<<"Invalid Symbol";
+            break;
+        case MISSING_EQUALS:
+            cout<<"The command is missing the = character";
+            break;
+        case LEFT_TOO_MANY_VARS:
+            cout<<"There can't be more than one variable in the left hand side";
+            break;
+        default:
+            return false;
+    }
+    errorFlag = NONE;
+    return true;
+}
+
+
 /*
  * implements Dijkstra's Two Stack Algorithm for Infix Evaluation.
  * utilizes Stack.h's Template Class Stack.
  * returns double value of expression.
  */
-bool errorFlag = false;
 
 
 //MSA ^_^
 double evaluate(string s){
-	errorFlag = false;
 	Stack<double> operands;
 	Stack<char> operators;
 
@@ -80,22 +129,22 @@ double evaluate(string s){
 		//keep evaluating pairs of operands and their operation, and pushing the result to the stack till left bracket is met.
 		if (s[i] == ')') {
 			if(operators.isEmpty()){
-					errorFlag = true;
+                raiseError(INVALID_EXPRESSION);
 					return 0;
 			}
 			while (operators.peak() != '(') {
 				if(operands.isEmpty()){
-					errorFlag = true;
+                    raiseError(INVALID_EXPRESSION);
 					return 0;
 				}
 				double v2 = operands.pop();
 				if(operands.isEmpty()){
-					errorFlag = true;
+                    raiseError(INVALID_EXPRESSION);
 					return 0;
 				}
 				double v1 = operands.pop();
 				if(operators.isEmpty()){
-					errorFlag = true;
+                    raiseError(INVALID_EXPRESSION);
 					return 0;
 				}
 				char o = operators.pop();
@@ -103,7 +152,7 @@ double evaluate(string s){
 			}
 			// pop the left bracket.
 			if(operators.isEmpty()){
-					errorFlag = true;
+                raiseError(INVALID_EXPRESSION);
 					return 0;
 			}
 			operators.pop();
@@ -136,17 +185,17 @@ double evaluate(string s){
 		//if it isn't an operand or a right or left bracket. It's an operator. Loop condition makes sure precedence isn't overlooked.
 		while (!operators.isEmpty() && prior(operators.peak(),s[i]) && operators.peak() != '(') {
 			if(operands.isEmpty()){
-					errorFlag = true;
+                raiseError(INVALID_EXPRESSION);
 					return 0;
 			}
 			double v2 = operands.pop();
 			if(operands.isEmpty()){
-					errorFlag = true;
+                raiseError(INVALID_EXPRESSION);
 					return 0;
 			}
 			double v1 = operands.pop();
 			if(operators.isEmpty()){
-					errorFlag = true;
+                raiseError(INVALID_EXPRESSION);
 					return 0;
 			}
 			char o = operators.pop();
@@ -158,17 +207,17 @@ double evaluate(string s){
 	//after all is said is done. Make sure nothing is left on the operators' stack.
 	while (!operators.isEmpty()) {
 		if(operands.isEmpty()){
-					errorFlag = true;
+            raiseError(INVALID_EXPRESSION);
 					return 0;
 		}
 		double v2 = operands.pop();
 		if(operands.isEmpty()){
-					errorFlag = true;
+            raiseError(INVALID_EXPRESSION);
 					return 0;
 		}
 		double v1 = operands.pop();
 		if(operators.isEmpty()){
-					errorFlag = true;
+            raiseError(INVALID_EXPRESSION);
 					return 0;
 		}
 		char o = operators.pop();
@@ -176,27 +225,17 @@ double evaluate(string s){
 	}
 	//only value left is the result of the evaluated expression.
 	if(operands.isEmpty()){
-			errorFlag = true;
+        raiseError(INVALID_EXPRESSION);
 			return 0;
 	}
 	double returnV =  operands.pop();
 	if(operands.isEmpty() == false){
-		errorFlag = true;
+        raiseError(INVALID_EXPRESSION);
 		return 0;
 	}
 	return returnV;
 }
-/**
- *
- * Used to encapsulate manipulating error flags to be easier to debug.
- */
-void raiseError(){
-    errorFlag = true;
-}
 
-void clearErrors(){
-    errorFlag = false;
-}
 
 /**
 *Hashing function used for the HashMap
@@ -213,26 +252,30 @@ unsigned long hashFunction(unsigned char *str)
 }
 
 bool isOperandOrDigit(char x){
-    return isdigit(x) || x == '+' ||  x == '-' || x == '/' || x == '*' || x == ')' || x == '(';
+    return isdigit(x) || x == '+' ||  x == '-' || x == '/' || x == '*' || x == ')' || x == '(' || x == '.' || x == '=';
 }
+
+
 
 /**
  * Acts like a preprocessor. Removes all the occurences of any variable and replaces
  * it with its value.
  */
 void removeVarOccurences(string &code, std::map<string,float> *variables){
+    int equalIndex = code.find('=');
     for(int i = 0; i < code.length(); i++){
         char  current =  code[i];
         if(!isOperandOrDigit(current)){
             int j = i +1;
             while(!isOperandOrDigit(code[j]) && j < code.length())
                 j++;
+            
             string  key = code.substr(i,j - i);
             if(variables->count(key)){
             float value = (*variables)[key];
             code = code.substr(0,i) + std::to_string(value) + code.substr(j);
-            } else {
-                raiseError();
+            } else if(j > equalIndex) {
+                raiseError(INVALID_SYMBOL);
             }
         }
     }
@@ -260,18 +303,21 @@ void removeSpaces(string * str){
  *
  * Otherwise it evaluates the expression and assign it to the variable
  *
- * @param code the expression with all the white spaces removed
  */
 
 void execute(string code, std::map<string,float> *variables){
+    clearErrors();
     removeSpaces(&code);
 	int equalIndex = code.find('=');
-	if( equalIndex == -1){
+    if( equalIndex == -1){
         removeVarOccurences(code,variables);
-		double result = evaluate(code);
-		if(errorFlag) cout<<"Invalid Expression";
-		else cout<<result;
+        if(!interpretErrors()){
+            double result = evaluate(code);
+            if(!interpretErrors())
+                cout<<result;
+        }
 	} else {
+        removeVarOccurences(code , variables);
 		string key = code.substr(0,equalIndex);
 		(*variables)[key] = evaluate(code.substr(equalIndex + 1));
 	}
