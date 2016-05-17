@@ -256,6 +256,10 @@ bool isOperandOrDigit(char x){
 }
 
 
+bool isOperand(char x){
+    return  x == '+' ||  x == '-' || x == '/' || x == '*' || x == ')' || x == '(' ;
+}
+
 
 /**
  * Acts like a preprocessor. Removes all the occurences of any variable and replaces
@@ -268,6 +272,8 @@ void removeVarOccurences(string &code, std::map<string,float> *variables){
         char  current =  code[i];
         if(!isOperandOrDigit(current)){
             int j = i +1;
+            if(isOperand(current) && j < equalIndex)
+                raiseError(INVALID_EXPRESSION);
             while(!isOperandOrDigit(code[j]) && j < code.length())
                 j++;
             
@@ -282,6 +288,7 @@ void removeVarOccurences(string &code, std::map<string,float> *variables){
                 if(numVariablesOnLeft > 1)
                     raiseError(LEFT_TOO_MANY_VARS);
             }
+            i = j;
         }
     }
 }
@@ -327,6 +334,7 @@ void execute(string code, std::map<string,float> *variables){
             
 		string key = code.substr(0,equalIndex);
 		(*variables)[key] = evaluate(code.substr(equalIndex + 1));
+        interpretErrors();
         }
 	}
 	cout<<"\n\n";
